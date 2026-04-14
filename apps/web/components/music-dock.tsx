@@ -177,6 +177,7 @@ export function MusicDock({
     [source],
   )
   const compactCollapsed = compact && !expanded
+  const hasPlayer = Boolean(source?.embedUrl)
 
   if (!mounted) {
     return null
@@ -215,6 +216,18 @@ export function MusicDock({
           </Button>
         </div>
       </div>
+
+      {hasPlayer && source?.embedUrl ? (
+        <div className="sr-only" aria-hidden="true">
+          <iframe
+            src={source.embedUrl}
+            className="h-0 w-0 opacity-0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="eager"
+            title={`${providerLabel(source.provider)} background player`}
+          />
+        </div>
+      ) : null}
 
       {compactCollapsed && source ? (
         <div className="space-y-3 p-4">

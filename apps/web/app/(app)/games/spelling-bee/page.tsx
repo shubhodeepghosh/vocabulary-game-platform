@@ -13,6 +13,7 @@ import { apiFetch } from '@/lib/api/client'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { GameScene } from '@/components/game-scene'
 import { GameResultOverlay } from '@/components/game-result-overlay'
 import { playErrorSound, playSuccessSound, playTapSound } from '@/lib/sound'
 import { useAuthStore } from '@/store/auth-store'
@@ -119,7 +120,8 @@ export default function SpellingBeePage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <GameScene gameId="spelling-bee">
+      <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold text-foreground">Spelling Bee</h2>
@@ -252,6 +254,7 @@ export default function SpellingBeePage() {
           onClick: () => void startGame(true),
         }}
       />
-    </div>
+      </div>
+    </GameScene>
   )
 }

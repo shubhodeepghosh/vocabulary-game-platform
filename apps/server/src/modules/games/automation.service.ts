@@ -85,9 +85,13 @@ export class AutomationService {
     gameType: GameType,
     difficulty: Difficulty,
     candidates: T[],
-    dateKey: string
+    dateKey: string,
+    excludeWords: string[] = []
   ): Promise<T> {
     const seed = `${gameType}:${difficulty}:${dateKey}`
+    const normalizedExcludes = new Set(excludeWords.map((word) => word.toLowerCase()))
+    const viableCandidates = candidates.filter((candidate) => !normalizedExcludes.has(candidate.word.toLowerCase()))
+    const pool = viableCandidates.length ? viableCandidates : candidates
     const aiChoice = await queryOpenAI<{ word?: string }>(
       [
         'Pick one word for a daily vocabulary game.',
@@ -95,7 +99,7 @@ export class AutomationService {
         `Difficulty: ${difficulty}`,
         `Date: ${dateKey}`,
         'Choose only from this shortlist:',
-        candidates
+        pool
           .map((candidate) => `${candidate.word} - ${candidate.definition}`)
           .join('\n'),
         'Return JSON with a single "word" field.',
@@ -106,7 +110,7 @@ export class AutomationService {
       (candidate) => candidate.word.toLowerCase() === aiChoice?.word?.toLowerCase()
     )
 
-    return fromAi ?? pickDeterministically(candidates, seed)
+    return fromAi ?? pickDeterministically(pool, seed)
   }
 
   async chooseBeePuzzle(

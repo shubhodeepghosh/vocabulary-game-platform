@@ -60,6 +60,7 @@ type ChoiceQuestion = {
   explanation: string
   difficulty: Difficulty
   timeLimitSeconds?: number
+  answerWord?: string
 }
 
 const GAME_TYPES: GameType[] = ['wordle', 'scramble', 'spelling-bee', 'speed', 'quiz']
@@ -88,11 +89,13 @@ export class GameService {
       length: wordLength,
       limit: 10,
     })
+    const excludeWords = await this.getRecentlyUsedWords('wordle')
     const word = await automationService.chooseWordForGame(
       'wordle',
       difficulty,
       candidates,
-      this.getDateKey()
+      this.getDateKey(),
+      excludeWords
     )
     const sessionId = await this.createSession(userId, 'wordle', difficulty, {
       answer: word.word.toUpperCase(),
@@ -134,11 +137,13 @@ export class GameService {
       maxLength,
       limit: 12,
     })
+    const excludeWords = await this.getRecentlyUsedWords('scramble')
     const word = await automationService.chooseWordForGame(
       'scramble',
       difficulty,
       candidates,
-      this.getDateKey()
+      this.getDateKey(),
+      excludeWords
     )
     const timeLimitSeconds = getScrambleTimeLimit(difficulty)
     const scrambledWord = scrambleWord(word.word)
@@ -231,7 +236,7 @@ export class GameService {
     const correct = elapsedMs <= timeLimitMs && answerIndex === question.answerIndex
     const score = Number(session.state.score ?? 0) + (correct ? Math.max(12, Math.round(25 + (timeLimitMs - elapsedMs) / 250)) : 0)
     if (round >= Number(session.state.maxRounds ?? 5)) {
-      await this.completeSession({ sessionId, userId, gameType: 'speed', difficulty: session.difficulty, score, won: score >= 60, metadata: { rounds: round } })
+      await this.completeSession({ sessionId, userId, gameType: 'speed', difficulty: session.difficulty, score, won: score >= 60, metadata: { rounds: round, correctWord: question.answerWord } })
       return { sessionId, correct, score, finished: true, answerIndex: question.answerIndex }
     }
     const nextRound = round + 1
@@ -254,7 +259,7 @@ export class GameService {
     const correct = answerIndex === question.answerIndex
     const score = Number(session.state.score ?? 0) + (correct ? 20 : 0)
     if (round >= Number(session.state.maxRounds ?? 5)) {
-      await this.completeSession({ sessionId, userId, gameType: 'quiz', difficulty: session.difficulty, score, won: score >= 60, metadata: { rounds: round } })
+      await this.completeSession({ sessionId, userId, gameType: 'quiz', difficulty: session.difficulty, score, won: score >= 60, metadata: { rounds: round, correctWord: question.answerWord } })
       return { sessionId, correct, score, finished: true, answerIndex: question.answerIndex, explanation: question.explanation }
     }
     const nextRound = round + 1
@@ -381,15 +386,17 @@ export class GameService {
       difficulty,
       limit: 10,
     })
+    const excludeWords = await this.getRecentlyUsedWords('speed')
     const correct = await automationService.chooseWordForGame(
       'speed',
       difficulty,
       candidates,
-      `${this.getDateKey()}:round:${round}`
+      `${this.getDateKey()}:round:${round}`,
+      excludeWords
     )
     const distractors = await this.getDistractors(correct.id, 3)
     const options = shuffle([correct.definition, ...distractors.map((word) => word.definition)])
-    return { prompt: `Pick the best definition for "${correct.word.toUpperCase()}".`, options, answerIndex: options.indexOf(correct.definition), explanation: correct.example_sentence, difficulty, timeLimitSeconds: getSpeedTimeLimit(getDifficultyForRound(round)) }
+    return { prompt: `Pick the best definition for "${correct.word.toUpperCase()}".`, options, answerIndex: options.indexOf(correct.definition), explanation: correct.example_sentence, difficulty, timeLimitSeconds: getSpeedTimeLimit(getDifficultyForRound(round)), answerWord: correct.word }
   }
 
   private async buildQuizQuestion(difficulty: Difficulty, round: number): Promise<ChoiceQuestion> {
@@ -397,20 +404,51 @@ export class GameService {
       difficulty,
       limit: 10,
     })
+    const excludeWords = await this.getRecentlyUsedWords('quiz')
     const correct = await automationService.chooseWordForGame(
       'quiz',
       difficulty,
       candidates,
-      `${this.getDateKey()}:round:${round}`
+      `${this.getDateKey()}:round:${round}`,
+      excludeWords
     )
     const distractors = await this.getDistractors(correct.id, 3)
     const options = shuffle([correct.word.toUpperCase(), ...distractors.map((word) => word.word.toUpperCase())])
-    return { prompt: correct.definition, options, answerIndex: options.indexOf(correct.word.toUpperCase()), explanation: correct.example_sentence, difficulty: getDifficultyForRound(round) }
+    return { prompt: correct.definition, options, answerIndex: options.indexOf(correct.word.toUpperCase()), explanation: correct.example_sentence, difficulty: getDifficultyForRound(round), answerWord: correct.word }
   }
 
   private async getDistractors(excludeWordId: number, count: number) {
     const { rows } = await pool.query('SELECT id, word, definition, example_sentence, difficulty FROM words WHERE id <> $1 ORDER BY random() LIMIT $2', [excludeWordId, count])
     return rows as WordRow[]
+  }
+
+  private async getRecentlyUsedWords(gameType: GameType, limit = 24) {
+    const { rows } = await pool.query(
+      `SELECT metadata
+       FROM game_results
+       WHERE game_slug = $1
+       ORDER BY created_at DESC
+       LIMIT $2`,
+      [gameType, limit]
+    )
+
+    const words: string[] = []
+    for (const row of rows) {
+      const metadata = row.metadata as Record<string, unknown> | null
+      const candidates = [
+        metadata?.answer,
+        metadata?.correctWord,
+        metadata?.answerWord,
+      ]
+
+      for (const candidate of candidates) {
+        if (typeof candidate === 'string' && candidate.trim()) {
+          words.push(candidate)
+        }
+      }
+    }
+
+    return words
   }
 
   private publicSpeedQuestion(question: ChoiceQuestion, round: number): SpeedQuestion {

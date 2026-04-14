@@ -12,6 +12,7 @@ import { ChevronLeft, RotateCcw } from 'lucide-react'
 import { apiFetch } from '@/lib/api/client'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { GameScene } from '@/components/game-scene'
 import { GameResultOverlay } from '@/components/game-result-overlay'
 import { playErrorSound, playSuccessSound, playTapSound } from '@/lib/sound'
 import { useAuthStore } from '@/store/auth-store'
@@ -126,7 +127,8 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <GameScene gameId="quiz">
+      <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold text-foreground">Quiz</h2>
@@ -242,6 +244,7 @@ export default function QuizPage() {
           onClick: () => void startGame(true),
         }}
       />
-    </div>
+      </div>
+    </GameScene>
   )
 }
