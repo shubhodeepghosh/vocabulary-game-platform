@@ -1,0 +1,19 @@
+{
+  "name": "keen-vocabulary-platform",
+  "private": true,
+  "packageManager": "pnpm@10.10.0",
+  "scripts": {
+    "dev": "node scripts/dev-demo.mjs",
+    "dev:full": "docker compose up -d postgres redis && wait-on tcp:5432 tcp:6379 && corepack pnpm db:setup && concurrently \"corepack pnpm --filter @keen/server dev\" \"corepack pnpm --filter @keen/web dev\"",
+    "build": "corepack pnpm --recursive build",
+    "lint": "corepack pnpm --recursive lint",
+    "test": "corepack pnpm --recursive test",
+    "db:migrate": "corepack pnpm --filter @keen/server db:migrate",
+    "db:seed": "corepack pnpm --filter @keen/server db:seed",
+    "db:setup": "corepack pnpm db:migrate && corepack pnpm db:seed"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "wait-on": "^8.0.3"
+  }
+}
