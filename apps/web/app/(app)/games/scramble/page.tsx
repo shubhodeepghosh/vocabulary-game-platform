@@ -30,6 +30,7 @@ export default function ScramblePage() {
   const [isBusy, setIsBusy] = useState(false)
   const [shake, setShake] = useState(false)
   const [correctWord, setCorrectWord] = useState<string | null>(null)
+  const [finalScore, setFinalScore] = useState(0)
   const [loadError, setLoadError] = useState<string | null>(null)
   const setGameSession = useGameStore((state) => state.setSession)
   const updateScore = useGameStore((state) => state.updateScore)
@@ -51,6 +52,7 @@ export default function ScramblePage() {
       setFeedback('Round live. Rearrange the letters and beat the clock.')
       setStatus('active')
       setCorrectWord(null)
+      setFinalScore(0)
       setLoadError(null)
       setGameSession({
         gameType: 'scramble',
@@ -83,6 +85,7 @@ export default function ScramblePage() {
 
   const applyResult = (response: ScrambleSubmitResponse) => {
     setStatus(response.status)
+    setFinalScore(response.score)
     updateScore(response.score)
     if (response.hint) setHint(response.hint)
     setHintsRemaining(response.hintsRemaining)
@@ -268,7 +271,7 @@ export default function ScramblePage() {
         title={status === 'won' ? 'Word cracked' : 'Time ran out'}
         description={
           status === 'won'
-            ? `You solved ${correctWord ?? 'the word'} for ${session.score} points.`
+            ? `You solved ${correctWord ?? 'the word'} for ${finalScore} points.`
             : `The answer was ${correctWord ?? 'the word'}. Hit restart and go again.`
         }
         primaryAction={{
