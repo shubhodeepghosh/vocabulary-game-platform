@@ -84,12 +84,13 @@ export class GameService {
   async startWordle(userId: string, requestedDifficulty?: string): Promise<WordleStartResponse> {
     const difficulty = normalizeDifficulty(requestedDifficulty)
     const wordLength = getWordleLength(difficulty)
+    const excludeWords = await this.getRecentlyUsedWords()
     const candidates = await this.getCandidateWords({
       difficulty,
       length: wordLength,
-      limit: 10,
+      limit: 40,
+      excludeWords,
     })
-    const excludeWords = await this.getRecentlyUsedWords()
     const word = await automationService.chooseWordForGame(
       'wordle',
       difficulty,
@@ -131,13 +132,14 @@ export class GameService {
   async startScramble(userId: string, requestedDifficulty?: string): Promise<ScrambleStartResponse> {
     const difficulty = normalizeDifficulty(requestedDifficulty)
     const [minLength, maxLength] = getScrambleLengthRange(difficulty)
+    const excludeWords = await this.getRecentlyUsedWords()
     const candidates = await this.getCandidateWords({
       difficulty,
       minLength,
       maxLength,
-      limit: 12,
+      limit: 40,
+      excludeWords,
     })
-    const excludeWords = await this.getRecentlyUsedWords()
     const word = await automationService.chooseWordForGame(
       'scramble',
       difficulty,
@@ -358,12 +360,16 @@ export class GameService {
     return candidates[0]
   }
 
-  private async getCandidateWords(filters: { difficulty: Difficulty; length?: number; minLength?: number; maxLength?: number; limit: number }) {
+  private async getCandidateWords(filters: { difficulty: Difficulty; length?: number; minLength?: number; maxLength?: number; limit: number; excludeWords?: string[] }) {
     const params: unknown[] = [filters.difficulty]
     const conditions = ['difficulty = $1']
     if (filters.length) { params.push(filters.length); conditions.push(`length = $${params.length}`) }
     if (filters.minLength) { params.push(filters.minLength); conditions.push(`length >= $${params.length}`) }
     if (filters.maxLength) { params.push(filters.maxLength); conditions.push(`length <= $${params.length}`) }
+    if (filters.excludeWords?.length) {
+      params.push(filters.excludeWords.map((word) => word.toLowerCase()))
+      conditions.push(`lower(word) <> ALL($${params.length}::text[])`)
+    }
     params.push(filters.limit)
     const { rows } = await pool.query(`SELECT id, word, definition, example_sentence, difficulty FROM words WHERE ${conditions.join(' AND ')} ORDER BY random() LIMIT $${params.length}`, params)
     if (!rows.length) {
@@ -382,11 +388,12 @@ export class GameService {
   }
 
   private async buildSpeedQuestion(difficulty: Difficulty, round: number): Promise<ChoiceQuestion> {
+    const excludeWords = await this.getRecentlyUsedWords()
     const candidates = await this.getCandidateWords({
       difficulty,
-      limit: 10,
+      limit: 40,
+      excludeWords,
     })
-    const excludeWords = await this.getRecentlyUsedWords()
     const correct = await automationService.chooseWordForGame(
       'speed',
       difficulty,
@@ -400,11 +407,12 @@ export class GameService {
   }
 
   private async buildQuizQuestion(difficulty: Difficulty, round: number): Promise<ChoiceQuestion> {
+    const excludeWords = await this.getRecentlyUsedWords()
     const candidates = await this.getCandidateWords({
       difficulty,
-      limit: 10,
+      limit: 40,
+      excludeWords,
     })
-    const excludeWords = await this.getRecentlyUsedWords()
     const correct = await automationService.chooseWordForGame(
       'quiz',
       difficulty,

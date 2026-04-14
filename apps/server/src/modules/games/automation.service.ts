@@ -30,6 +30,14 @@ function pickDeterministically<T>(items: T[], seed: string) {
   return items[hashString(seed) % items.length]
 }
 
+function pickRandomly<T>(items: T[]) {
+  if (!items.length) {
+    throw new Error('No items available for automation')
+  }
+
+  return items[Math.floor(Math.random() * items.length)]
+}
+
 async function queryOpenAI<T>(prompt: string): Promise<T | null> {
   if (!env.OPENAI_API_KEY || env.GAME_AUTOMATION_MODE !== 'openai') {
     return null
@@ -144,7 +152,6 @@ export class AutomationService {
     dateKey: string,
     excludeWords: string[] = []
   ): Promise<T> {
-    const seed = `${gameType}:${difficulty}:${dateKey}`
     const normalizedExcludes = new Set(excludeWords.map((word) => word.toLowerCase()))
     const viableCandidates = candidates.filter((candidate) => !normalizedExcludes.has(candidate.word.toLowerCase()))
     const pool = viableCandidates.length ? viableCandidates : candidates
@@ -166,7 +173,7 @@ export class AutomationService {
       (candidate) => candidate.word.toLowerCase() === aiChoice?.word?.toLowerCase()
     )
 
-    return fromAi ?? pickDeterministically(pool, seed)
+    return fromAi ?? pickRandomly(pool)
   }
 
   async chooseBeePuzzle(
@@ -175,7 +182,6 @@ export class AutomationService {
     dateKey: string
   ) {
     const matching = puzzles.filter((puzzle) => puzzle.difficulty === difficulty)
-    const seed = `spelling-bee:${difficulty}:${dateKey}`
     const aiChoice = await queryStructuredAI<{ centerLetter?: string }>(
       [
         'Pick one spelling bee puzzle for today.',
@@ -196,7 +202,7 @@ export class AutomationService {
         puzzle.centerLetter.toLowerCase() === aiChoice?.centerLetter?.toLowerCase()
     )
 
-    return fromAi ?? pickDeterministically(matching, seed)
+    return fromAi ?? pickRandomly(matching)
   }
 
   createDynamicFeedback(gameType: GameType, success: boolean, score: number) {
