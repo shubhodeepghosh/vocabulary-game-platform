@@ -48,10 +48,11 @@ export default function AppLayout({
 
   if (status === 'idle' || status === 'loading') {
     return (
-      <div className="flex h-screen items-center justify-center bg-background">
+      <div className="relative flex h-screen items-center justify-center overflow-hidden bg-background">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(125,211,252,0.28),transparent_26%),radial-gradient(circle_at_80%_20%,rgba(251,191,36,0.18),transparent_24%),linear-gradient(180deg,rgba(255,250,244,1),rgba(245,249,255,1))]" />
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-border border-t-primary"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-white/60 border-t-primary"></div>
+          <p className="mt-4 text-muted-foreground">Loading your adventure...</p>
         </div>
       </div>
     )
@@ -67,9 +68,10 @@ export default function AppLayout({
   const isActive = (href: string) => pathname === href
 
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div className="relative flex h-screen flex-col overflow-hidden bg-background">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_10%_0%,rgba(125,211,252,0.22),transparent_24%),radial-gradient(circle_at_90%_10%,rgba(251,191,36,0.16),transparent_22%),radial-gradient(circle_at_60%_100%,rgba(244,114,182,0.1),transparent_18%)]" />
       {/* Header */}
-      <header className="border-b border-border bg-card px-4 py-3 shadow-sm">
+      <header className="border-b border-white/60 bg-white/65 px-4 py-3 shadow-[0_12px_40px_-24px_rgba(15,23,42,0.35)] backdrop-blur-xl">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-primary">Keen</h1>
           <button
@@ -103,8 +105,8 @@ export default function AppLayout({
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - Desktop */}
-        <nav className="hidden w-48 border-r border-border bg-sidebar p-4 lg:block">
-          <div className="mb-6 rounded-xl bg-primary/10 p-4">
+        <nav className="hidden w-56 border-r border-white/60 bg-white/55 p-4 backdrop-blur-xl lg:block">
+          <div className="mb-6 rounded-[1.35rem] bg-gradient-to-br from-sky-100/90 via-white/80 to-amber-100/70 p-4 shadow-sm">
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
               Signed in as
             </p>
@@ -136,7 +138,7 @@ export default function AppLayout({
               )
             })}
           </ul>
-          <div className="mt-auto border-t border-border pt-4 lg:flex lg:items-center lg:gap-3">
+          <div className="mt-auto border-t border-white/60 pt-4 lg:flex lg:items-center lg:gap-3">
             <Button
               variant="ghost"
               size="sm"
@@ -153,7 +155,7 @@ export default function AppLayout({
         <main className="flex-1 overflow-auto">
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="border-b border-border bg-card px-4 py-3 lg:hidden">
+          <div className="border-b border-white/60 bg-white/70 px-4 py-3 backdrop-blur-xl lg:hidden">
             <div className="mb-3">
                 <div className="flex gap-2">
                   <SoundToggleButton compact className="flex-1" />
@@ -192,12 +194,12 @@ export default function AppLayout({
         <MusicDock className="fixed bottom-4 right-4 z-40 w-[360px]" compact />
       </div>
 
-      <div className="border-t border-border bg-card px-3 py-3 xl:hidden">
+      <div className="border-t border-white/60 bg-white/70 px-3 py-3 backdrop-blur-xl xl:hidden">
         <MusicDock compact />
       </div>
 
       {/* Bottom Navigation - Mobile */}
-      <nav className="border-t border-border bg-card lg:hidden">
+      <nav className="border-t border-white/60 bg-white/75 backdrop-blur-xl lg:hidden">
         <div className="flex items-center justify-around">
           {navItems.map((item) => {
             const Icon = item.icon
