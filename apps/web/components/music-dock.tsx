@@ -295,7 +295,7 @@ export function MusicDock({
             </div>
           )}
         </div>
-      )}
+      ) : null}
     </Card>
   )
 }
