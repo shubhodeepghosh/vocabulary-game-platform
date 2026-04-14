@@ -12,7 +12,9 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('7d'),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_MODEL: z.string().default('gpt-4o-mini'),
-  GAME_AUTOMATION_MODE: z.enum(['local', 'openai']).default('local'),
+  GEMINI_API_KEY: z.string().optional(),
+  GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
+  GAME_AUTOMATION_MODE: z.enum(['local', 'openai', 'gemini']).default('local'),
 })
 
 export const env = envSchema.parse(process.env)

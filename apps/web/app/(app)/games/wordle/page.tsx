@@ -14,13 +14,14 @@ import { playErrorSound, playSuccessSound, playTapSound } from '@/lib/sound'
 import { useAuthStore } from '@/store/auth-store'
 import { ChevronLeft, RotateCcw } from 'lucide-react'
 import { useGameStore } from '@/store/game-store'
+import { cn } from '@/lib/utils'
 
 type GuessRow = WordleGuessResponse['evaluation']
 
 const statusColor = {
-  correct: 'bg-green-500 text-white',
-  present: 'bg-yellow-500 text-white',
-  absent: 'bg-zinc-400 text-white',
+  correct: 'border-emerald-300/70 bg-emerald-500 text-white shadow-[0_12px_24px_-14px_rgba(16,185,129,0.8)]',
+  present: 'border-amber-300/70 bg-amber-400 text-white shadow-[0_12px_24px_-14px_rgba(245,158,11,0.8)]',
+  absent: 'border-slate-300/70 bg-slate-400 text-white shadow-[0_12px_24px_-14px_rgba(100,116,139,0.8)]',
 }
 
 export default function WordlePage() {
@@ -142,42 +143,48 @@ export default function WordlePage() {
   return (
     <GameScene gameId="wordle">
       <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-foreground">Wordle</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Crack the hidden word with six or fewer guesses.
-          </p>
-        </div>
-        <Link href="/games">
-          <Button variant="ghost" size="sm" className="gap-2">
-            <ChevronLeft className="h-4 w-4" />
-            Back
-          </Button>
-        </Link>
-      </div>
-
-      <Card className="space-y-5 p-6">
-        <div className="flex flex-wrap items-center gap-3">
-          {(['easy', 'medium', 'hard'] as Difficulty[]).map((option) => (
-            <Button
-              key={option}
-              variant={difficulty === option ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => {
-                playTapSound()
-                setDifficulty(option)
-              }}
-            >
-              {option}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold text-foreground">Wordle</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Crack the hidden word with six or fewer guesses.
+            </p>
+          </div>
+          <Link href="/games">
+            <Button variant="ghost" size="sm" className="gap-2 rounded-full bg-white/70 shadow-sm">
+              <ChevronLeft className="h-4 w-4" />
+              Back
             </Button>
-          ))}
-          <Button variant="outline" size="sm" onClick={() => void startGame(true)}>
-            New Puzzle
-          </Button>
+          </Link>
         </div>
 
-        <div className="rounded-xl bg-primary/10 p-4">
+        <Card className="space-y-5 border-white/70 bg-white/65 p-6 shadow-[0_24px_90px_-44px_rgba(14,116,144,0.32)] backdrop-blur-2xl">
+          <div className="flex flex-wrap items-center gap-3">
+            {(['easy', 'medium', 'hard'] as Difficulty[]).map((option) => (
+              <Button
+                key={option}
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  playTapSound()
+                  setDifficulty(option)
+                }}
+                className={cn(
+                  'rounded-full transition-all duration-200',
+                  difficulty === option
+                    ? 'border-sky-300/80 bg-sky-500 text-white shadow-[0_12px_24px_-16px_rgba(14,165,233,0.8)] hover:bg-sky-500'
+                    : 'border-white/80 bg-white/80 text-foreground hover:-translate-y-0.5 hover:border-sky-300/70 hover:bg-sky-50',
+                )}
+              >
+                {option}
+              </Button>
+            ))}
+            <Button variant="outline" size="sm" onClick={() => void startGame(true)} className="rounded-full border-white/80 bg-white/80 shadow-sm hover:-translate-y-0.5 hover:border-cyan-300/70 hover:bg-cyan-50">
+              New Puzzle
+            </Button>
+          </div>
+
+        <div className="rounded-[1.35rem] border border-sky-200/70 bg-gradient-to-r from-sky-100/85 via-cyan-50/85 to-teal-50/80 p-4 shadow-sm">
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
             Clue
           </p>
@@ -188,17 +195,18 @@ export default function WordlePage() {
           key={shakeKey}
           animate={message.includes('Unable') ? { x: [0, -8, 8, -6, 6, 0] } : {}}
           transition={{ duration: 0.28 }}
-          className={`rounded-xl border px-4 py-3 text-sm ${
+          className={`rounded-[1.25rem] border px-4 py-3 text-sm shadow-sm ${
             result === 'won'
-              ? 'border-green-500/30 bg-green-500/10 text-green-700'
+              ? 'border-emerald-200/70 bg-emerald-500/10 text-emerald-800'
               : result === 'lost'
-                ? 'border-red-500/30 bg-red-500/10 text-red-700'
-                : 'border-border bg-muted/40 text-foreground'
+                ? 'border-rose-200/70 bg-rose-500/10 text-rose-800'
+                : 'border-white/70 bg-white/70 text-foreground'
           }`}
         >
           {message}
         </motion.div>
 
+        <div className="rounded-[1.8rem] border border-white/70 bg-gradient-to-br from-sky-50/90 via-white/80 to-cyan-50/80 p-4 shadow-inner shadow-white/60">
         <div className="space-y-2">
           {guesses.map((guess, guessIndex) => (
             <div key={guessIndex} className="flex gap-2">
@@ -208,7 +216,10 @@ export default function WordlePage() {
                   initial={{ opacity: 0, scale: 0.92 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.22, delay: cellIndex * 0.04 }}
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl text-lg font-semibold uppercase ${statusColor[cell.status]}`}
+                  className={cn(
+                    'flex h-12 w-12 items-center justify-center rounded-[1rem] border text-lg font-semibold uppercase sm:h-14 sm:w-14',
+                    statusColor[cell.status],
+                  )}
                 >
                   {cell.letter}
                 </motion.div>
@@ -223,10 +234,10 @@ export default function WordlePage() {
                   key={index}
                   animate={shakeKey ? { x: [0, -3, 3, 0] } : {}}
                   transition={{ duration: 0.24 }}
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 text-lg font-semibold uppercase ${
+                  className={`flex h-12 w-12 items-center justify-center rounded-[1rem] border-2 text-lg font-semibold uppercase sm:h-14 sm:w-14 ${
                     index < currentGuess.length
-                      ? 'border-primary bg-muted text-foreground'
-                      : 'border-border bg-card'
+                      ? 'border-sky-300/80 bg-sky-100 text-slate-900 shadow-[0_10px_20px_-14px_rgba(14,165,233,0.7)]'
+                      : 'border-white/70 bg-white/85 text-slate-400 shadow-[0_10px_20px_-16px_rgba(15,23,42,0.1)]'
                   }`}
                 >
                   {currentGuess[index]}
@@ -240,11 +251,12 @@ export default function WordlePage() {
               {Array.from({ length: session.wordLength }).map((__, cellIndex) => (
                 <div
                   key={cellIndex}
-                  className="h-12 w-12 rounded-xl border-2 border-border bg-card"
+                  className="h-12 w-12 rounded-[1rem] border-2 border-white/70 bg-white/72 shadow-[0_10px_20px_-16px_rgba(15,23,42,0.12)] sm:h-14 sm:w-14"
                 />
               ))}
             </div>
           ))}
+        </div>
         </div>
 
         {result === 'active' ? (
@@ -270,30 +282,39 @@ export default function WordlePage() {
           </div>
         )}
 
-        <Button variant={result === 'active' ? 'outline' : 'default'} onClick={() => void startGame(true)}>
+        <Button
+          variant={result === 'active' ? 'outline' : 'default'}
+          onClick={() => void startGame(true)}
+          className={cn(
+            'rounded-full',
+            result === 'active'
+              ? 'border-white/80 bg-white/80 shadow-sm hover:border-sky-300/70 hover:bg-sky-50'
+              : 'shadow-[0_14px_28px_-18px_rgba(14,165,233,0.7)]',
+          )}
+        >
           <RotateCcw className="mr-2 h-4 w-4" />
           {result === 'active' ? 'Reset puzzle' : 'Play again'}
         </Button>
       </Card>
 
-      <GameResultOverlay
-        open={showOverlay}
-        tone={result === 'won' ? 'win' : 'lose'}
-        title={
-          result === 'won'
-            ? `Solved in ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}`
-            : 'The word slipped away'
-        }
-        description={
-          result === 'won'
-            ? `Nice work. The answer was ${answer ?? 'that word'}.`
-            : `The answer was ${answer ?? 'that word'}. Start another round and keep the streak alive.`
-        }
-        primaryAction={{
-          label: result === 'won' ? 'Play again' : 'Try again',
-          onClick: () => void startGame(true),
-        }}
-      />
+        <GameResultOverlay
+          open={showOverlay}
+          tone={result === 'won' ? 'win' : 'lose'}
+          title={
+            result === 'won'
+              ? `Solved in ${guesses.length} guess${guesses.length === 1 ? '' : 'es'}`
+              : 'The word slipped away'
+          }
+          description={
+            result === 'won'
+              ? `Nice work. The answer was ${answer ?? 'that word'}.`
+              : `The answer was ${answer ?? 'that word'}. Start another round and keep the streak alive.`
+          }
+          primaryAction={{
+            label: result === 'won' ? 'Play again' : 'Try again',
+            onClick: () => void startGame(true),
+          }}
+        />
       </div>
     </GameScene>
   )

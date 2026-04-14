@@ -11,7 +11,7 @@ Current gameplay mode:
 - Instant guest play, no signup required
 - Anonymous progress stored against guest sessions
 - Automated daily-style content selection
-- Optional OpenAI-powered automation if you later add an API key
+- Optional AI-powered automation with Gemini or OpenAI if you later add an API key
 - Browser-only demo mode by default, no Docker needed
 - Full stack mode still exists under `npm run dev:full`
 
@@ -38,6 +38,7 @@ The demo runs on `http://localhost:3000` and uses local browser-backed API state
   - Point `API_PROXY_TARGET` to your backend service URL
   - Set `CLIENT_ORIGIN` on the server to the public web domain
   - Leave `GAME_AUTOMATION_MODE=local` for a zero-cost automated experience
+  - Or set `GAME_AUTOMATION_MODE=gemini` and provide `GEMINI_API_KEY` for AI-picked words/puzzles
 - `next.config.mjs` only proxies `/api` when `API_PROXY_TARGET` is present, so the demo build stays clean on static hosting.
 
 ## Free Vercel Steps

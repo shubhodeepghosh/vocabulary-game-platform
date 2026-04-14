@@ -115,8 +115,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          <Card className="relative overflow-hidden border-border/60 bg-card/95 p-5 shadow-[0_24px_80px_-28px_rgba(15,23,42,0.35)] sm:p-6">
-            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(59,130,246,0.08),transparent_40%,rgba(16,185,129,0.09),transparent_72%)]" />
+          <Card className="relative overflow-hidden border-white/70 bg-white/72 p-5 shadow-[0_24px_80px_-28px_rgba(15,23,42,0.35)] sm:p-6 backdrop-blur-2xl">
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(59,130,246,0.12),transparent_40%,rgba(16,185,129,0.1),transparent_72%),radial-gradient(circle_at_top_right,rgba(245,158,11,0.12),transparent_30%)]" />
             <div className="relative space-y-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -131,19 +131,19 @@ export default function HomePage() {
                   Ready now
                 </div>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {[
-                  ['Wordle', 'Daily-style clues'],
-                  ['Scramble', 'Timed letter puzzles'],
-                  ['Quiz', 'Instant feedback'],
-                  ['Speed Vocab', 'Rapid score runs'],
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {[
+                    ['Wordle', 'Daily-style clues'],
+                    ['Scramble', 'Timed letter puzzles'],
+                    ['Quiz', 'Instant feedback'],
+                    ['Speed Vocab', 'Rapid score runs'],
                 ].map(([title, text], index) => (
                   <motion.div
                     key={title}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.08 * index, duration: 0.22 }}
-                    className="rounded-2xl border border-border bg-background/80 p-4 shadow-sm transition-transform hover:-translate-y-0.5"
+                    className="rounded-2xl border border-white/70 bg-white/72 p-4 shadow-sm transition-transform hover:-translate-y-0.5"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <p className="font-semibold text-foreground">{title}</p>
@@ -153,7 +153,7 @@ export default function HomePage() {
                   </motion.div>
                 ))}
               </div>
-              <div className="grid gap-3 rounded-3xl border border-border bg-background/85 p-4 sm:grid-cols-3">
+              <div className="grid gap-3 rounded-3xl border border-white/70 bg-white/72 p-4 sm:grid-cols-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">XP</p>
                   <p className="mt-1 text-2xl font-black text-primary">+120</p>
@@ -172,8 +172,8 @@ export default function HomePage() {
         </motion.section>
 
         <section className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
-          <Card className="relative overflow-hidden p-6">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.08),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.08),transparent_35%)]" />
+          <Card className="relative overflow-hidden border-white/70 bg-white/72 p-6 backdrop-blur-2xl">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.13),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.1),transparent_35%),radial-gradient(circle_at_90%_18%,rgba(245,158,11,0.12),transparent_28%)]" />
             <div className="relative space-y-4">
               <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
                 <Share2 className="h-3.5 w-3.5" />
@@ -189,14 +189,14 @@ export default function HomePage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <ShareLinkButton label="Copy game link" size="lg" className="rounded-full px-6" />
-                <Button asChild size="lg" variant="outline" className="rounded-full px-6">
+                <Button asChild size="lg" variant="outline" className="rounded-full px-6 bg-white/80">
                   <Link href="/games">Open lobby</Link>
                 </Button>
               </div>
             </div>
           </Card>
 
-          <Card className="space-y-4 p-6">
+          <Card className="space-y-4 border-white/70 bg-white/72 p-6 backdrop-blur-2xl">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
@@ -206,10 +206,10 @@ export default function HomePage() {
                   Bring your music
                 </h2>
               </div>
-              <span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-semibold text-secondary">
-                Local only
-              </span>
-            </div>
+                <span className="rounded-full bg-secondary/15 px-3 py-1 text-xs font-semibold text-secondary">
+                  Local only
+                </span>
+              </div>
             <p className="text-sm leading-7 text-muted-foreground">
               Paste a YouTube, Spotify, or Apple Music link and keep it connected while you play. The selection is saved on your device, so the vibe stays with you.
             </p>
@@ -219,10 +219,10 @@ export default function HomePage() {
                 ['Spotify', 'Albums or playlists'],
                 ['Apple Music', 'Shared links'],
               ].map(([label, text]) => (
-                <div key={label} className="rounded-2xl border border-border bg-background/80 p-4">
-                  <p className="font-semibold text-foreground">{label}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{text}</p>
-                </div>
+                  <div key={label} className="rounded-2xl border border-white/70 bg-white/78 p-4">
+                    <p className="font-semibold text-foreground">{label}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{text}</p>
+                  </div>
               ))}
             </div>
           </Card>

@@ -80,6 +80,62 @@ async function queryOpenAI<T>(prompt: string): Promise<T | null> {
   }
 }
 
+async function queryGemini<T>(prompt: string): Promise<T | null> {
+  if (!env.GEMINI_API_KEY || env.GAME_AUTOMATION_MODE === 'openai') {
+    return null
+  }
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${env.GEMINI_MODEL}:generateContent`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': env.GEMINI_API_KEY,
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: prompt }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.8,
+            responseMimeType: 'application/json',
+          },
+        }),
+      }
+    )
+
+    if (!response.ok) {
+      return null
+    }
+
+    const data = (await response.json()) as {
+      candidates?: Array<{
+        content?: {
+          parts?: Array<{ text?: string }>
+        }
+      }>
+    }
+
+    const text = data.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('').trim()
+    if (!text) {
+      return null
+    }
+
+    return JSON.parse(text) as T
+  } catch {
+    return null
+  }
+}
+
+async function queryStructuredAI<T>(prompt: string): Promise<T | null> {
+  return (await queryGemini<T>(prompt)) ?? (await queryOpenAI<T>(prompt))
+}
+
 export class AutomationService {
   async chooseWordForGame<T extends CandidateWord>(
     gameType: GameType,
@@ -92,7 +148,7 @@ export class AutomationService {
     const normalizedExcludes = new Set(excludeWords.map((word) => word.toLowerCase()))
     const viableCandidates = candidates.filter((candidate) => !normalizedExcludes.has(candidate.word.toLowerCase()))
     const pool = viableCandidates.length ? viableCandidates : candidates
-    const aiChoice = await queryOpenAI<{ word?: string }>(
+    const aiChoice = await queryStructuredAI<{ word?: string }>(
       [
         'Pick one word for a daily vocabulary game.',
         `Game: ${gameType}`,
@@ -120,7 +176,7 @@ export class AutomationService {
   ) {
     const matching = puzzles.filter((puzzle) => puzzle.difficulty === difficulty)
     const seed = `spelling-bee:${difficulty}:${dateKey}`
-    const aiChoice = await queryOpenAI<{ centerLetter?: string }>(
+    const aiChoice = await queryStructuredAI<{ centerLetter?: string }>(
       [
         'Pick one spelling bee puzzle for today.',
         `Difficulty: ${difficulty}`,

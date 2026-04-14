@@ -91,12 +91,12 @@ export default function GamesPage() {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="relative overflow-hidden rounded-[2rem] border border-border/70 bg-card/85 p-6 shadow-[0_28px_90px_-44px_rgba(15,23,42,0.35)]"
+        className="relative overflow-hidden rounded-[2rem] border border-white/70 bg-white/68 p-6 shadow-[0_28px_90px_-44px_rgba(15,23,42,0.35)] backdrop-blur-2xl"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(125,211,252,0.18),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(167,243,208,0.16),transparent_36%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(125,211,252,0.24),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(167,243,208,0.18),transparent_34%),radial-gradient(circle_at_90%_10%,rgba(251,191,36,0.14),transparent_26%)]" />
         <div className="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
-            <p className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            <p className="inline-flex rounded-full bg-gradient-to-r from-sky-200/90 via-cyan-100/90 to-emerald-100/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-sky-900 shadow-sm">
               The journey begins
             </p>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-foreground sm:text-4xl">
@@ -106,7 +106,7 @@ export default function GamesPage() {
               Every game is built for instant play, but now it feels like a lively quest board instead of a plain menu.
             </p>
           </div>
-          <Button asChild size="sm" className="gap-2 rounded-full px-5">
+          <Button asChild size="sm" className="gap-2 rounded-full px-5 shadow-md">
             <Link href="/games/wordle" onClick={playTapSound}>
               Start with Wordle
               <ChevronRight className="h-4 w-4" />
@@ -123,9 +123,25 @@ export default function GamesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.22, delay: index * 0.04 }}
           >
-            <div className="rounded-2xl border border-border/70 bg-background/75 px-4 py-4 backdrop-blur-sm">
+            <div className="rounded-[1.35rem] border border-white/70 bg-white/70 px-4 py-4 shadow-[0_16px_32px_-22px_rgba(15,23,42,0.25)] backdrop-blur-xl">
               <p className="text-sm font-semibold text-foreground">{game.name}</p>
               <p className="mt-1 text-xs text-muted-foreground">{game.difficulty}</p>
+              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted/80">
+                <div
+                  className={`h-full rounded-full bg-gradient-to-r ${
+                    index % 5 === 0
+                      ? 'from-sky-400 to-cyan-300'
+                      : index % 5 === 1
+                        ? 'from-violet-400 to-fuchsia-300'
+                        : index % 5 === 2
+                          ? 'from-emerald-400 to-lime-300'
+                          : index % 5 === 3
+                            ? 'from-cyan-400 to-blue-300'
+                            : 'from-orange-400 to-amber-300'
+                  }`}
+                  style={{ width: `${60 + index * 8}%` }}
+                />
+              </div>
             </div>
           </motion.div>
         ))}
@@ -135,7 +151,7 @@ export default function GamesPage() {
         {games.map((game) => (
           <Card
             key={game.id}
-            className="group flex flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_-28px_rgba(15,23,42,0.35)]"
+            className="group flex flex-col overflow-hidden border-white/70 bg-white/72 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_-28px_rgba(15,23,42,0.35)]"
           >
             <div
               className={`bg-gradient-to-br ${game.color} p-6 text-white`}
@@ -156,7 +172,7 @@ export default function GamesPage() {
               <p className="flex-1 text-sm text-muted-foreground">
                 {game.fullDescription}
               </p>
-              <Button asChild className="mt-4 w-full gap-2 rounded-full">
+              <Button asChild className="mt-4 w-full gap-2 rounded-full shadow-sm">
                 <Link href={game.href} onClick={playTapSound}>
                   Play Now
                   <ChevronRight className="h-4 w-4" />

@@ -17,6 +17,7 @@ import { GameResultOverlay } from '@/components/game-result-overlay'
 import { playErrorSound, playSuccessSound, playTapSound } from '@/lib/sound'
 import { useAuthStore } from '@/store/auth-store'
 import { useGameStore } from '@/store/game-store'
+import { cn } from '@/lib/utils'
 
 export default function QuizPage() {
   const [difficulty, setDifficulty] = useState<Difficulty>('medium')
@@ -129,110 +130,134 @@ export default function QuizPage() {
   return (
     <GameScene gameId="quiz">
       <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-foreground">Quiz</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Five multiple-choice rounds with instant explanations.
-          </p>
-        </div>
-        <Link href="/games">
-          <Button variant="ghost" size="sm" className="gap-2">
-            <ChevronLeft className="h-4 w-4" />
-            Back
-          </Button>
-        </Link>
-      </div>
-
-      <Card className="space-y-6 p-6">
-        <div className="flex flex-wrap items-center gap-3">
-          {(['easy', 'medium', 'hard'] as Difficulty[]).map((option) => (
-            <Button
-              key={option}
-              variant={difficulty === option ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => {
-                playTapSound()
-                setDifficulty(option)
-              }}
-            >
-              {option}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold text-foreground">Quiz</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Five multiple-choice rounds with instant explanations.
+            </p>
+          </div>
+          <Link href="/games">
+            <Button variant="ghost" size="sm" className="gap-2 rounded-full bg-white/70 shadow-sm">
+              <ChevronLeft className="h-4 w-4" />
+              Back
             </Button>
-          ))}
-          <Button variant="outline" size="sm" onClick={() => void startGame(true)}>
-            <RotateCcw className="mr-2 h-4 w-4" />
-            Restart
-          </Button>
+          </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl bg-primary/10 p-5">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              Score
-            </p>
-            <p className="mt-3 text-4xl font-bold text-foreground">{score}</p>
-          </div>
-          <div className="rounded-2xl bg-muted/60 p-5">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              Current round
-            </p>
-            <p className="mt-3 text-4xl font-bold text-foreground">
-              {question?.round ?? 5}
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-xl bg-muted/40 px-4 py-3 text-sm text-foreground">
-          {feedback}
-        </div>
-
-        {question ? (
-          <>
-            <div className="rounded-2xl border border-border bg-card p-6">
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                Prompt
-              </p>
-              <p className="mt-3 text-xl font-semibold text-foreground">
-                {question.prompt}
-              </p>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-2">
-              {question.options.map((option, index) => (
-                <button
-                  key={option}
-                  disabled={answerReveal !== null || isBusy}
-                  onClick={() => void submitAnswer(index)}
-                  className={`rounded-2xl border px-5 py-4 text-left transition-colors ${
-                    answerReveal === index
-                      ? 'border-green-500 bg-green-500/10 text-green-700'
-                      : answerReveal !== null && selectedAnswer === index
-                        ? 'border-red-500 bg-red-500/10 text-red-700'
-                      : answerReveal !== null
-                        ? 'border-border bg-muted/30 text-muted-foreground'
-                        : 'border-border bg-card text-foreground hover:border-primary/40 hover:bg-primary/5'
-                  }`}
-                >
-                  <p className="text-sm font-medium">{option}</p>
-                </button>
-              ))}
-            </div>
-
-            {answerReveal !== null && (
-              <Button onClick={moveNext}>
-                {pendingQuestion ? 'Continue' : 'Finish run'}
+        <Card className="space-y-6 border-white/70 bg-white/62 p-6 shadow-[0_24px_90px_-44px_rgba(34,211,238,0.3)] backdrop-blur-2xl">
+          <div className="flex flex-wrap items-center gap-3">
+            {(['easy', 'medium', 'hard'] as Difficulty[]).map((option) => (
+              <Button
+                key={option}
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  playTapSound()
+                  setDifficulty(option)
+                }}
+                className={cn(
+                  'rounded-full transition-all duration-200',
+                  difficulty === option
+                    ? 'border-cyan-300/80 bg-cyan-500 text-white shadow-[0_12px_24px_-16px_rgba(34,211,238,0.8)] hover:bg-cyan-500'
+                    : 'border-white/80 bg-white/80 text-foreground hover:-translate-y-0.5 hover:border-cyan-300/70 hover:bg-cyan-50',
+                )}
+              >
+                {option}
               </Button>
-            )}
-          </>
-        ) : (
-          <div className="rounded-2xl border border-border bg-card p-6 text-center">
-            <p className="text-lg font-semibold text-foreground">Quiz complete</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Restart to try a harder run.
-            </p>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void startGame(true)}
+              className="rounded-full border-white/80 bg-white/80 shadow-sm hover:-translate-y-0.5 hover:border-amber-300/70 hover:bg-amber-50"
+            >
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Restart
+            </Button>
           </div>
-        )}
-      </Card>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-[1.5rem] border border-cyan-200/70 bg-gradient-to-br from-cyan-100/90 via-white/85 to-blue-100/75 p-5 shadow-inner shadow-white/50">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                Score
+              </p>
+              <p className="mt-3 text-4xl font-black text-foreground">{score}</p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Keep the momentum and chase the next perfect streak.
+              </p>
+            </div>
+            <div className="rounded-[1.5rem] border border-white/70 bg-gradient-to-br from-amber-100/85 via-white/80 to-rose-100/70 p-5 shadow-[0_16px_44px_-26px_rgba(251,146,60,0.35)]">
+              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                Current round
+              </p>
+              <p className="mt-3 text-4xl font-black text-foreground">
+                {question?.round ?? 5}
+              </p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Five quick questions, each with instant learning feedback.
+              </p>
+            </div>
+          </div>
+
+          <div className={cn(
+            'rounded-[1.25rem] border px-4 py-3 text-sm shadow-sm',
+            feedback.includes('Correct')
+              ? 'border-emerald-200/70 bg-emerald-500/10 text-emerald-800'
+              : feedback.includes('Not quite')
+                ? 'border-rose-200/70 bg-rose-500/10 text-rose-800'
+                : 'border-white/70 bg-white/72 text-foreground',
+          )}>
+            {feedback}
+          </div>
+
+          {question ? (
+            <>
+              <div className="rounded-[1.5rem] border border-white/70 bg-gradient-to-br from-indigo-100/85 via-white/80 to-cyan-50/80 p-6 shadow-[0_16px_44px_-28px_rgba(79,70,229,0.3)]">
+                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                  Prompt
+                </p>
+                <p className="mt-3 text-2xl font-black tracking-tight text-foreground">
+                  {question.prompt}
+                </p>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                {question.options.map((option, index) => (
+                  <button
+                    key={option}
+                    disabled={answerReveal !== null || isBusy}
+                    onClick={() => void submitAnswer(index)}
+                    className={`rounded-[1.35rem] border px-5 py-4 text-left transition-all duration-200 ${
+                      answerReveal === index
+                        ? 'border-emerald-300/70 bg-emerald-500/12 text-emerald-900 shadow-[0_14px_26px_-18px_rgba(16,185,129,0.8)]'
+                        : answerReveal !== null && selectedAnswer === index
+                          ? 'border-rose-300/70 bg-rose-500/12 text-rose-900 shadow-[0_14px_26px_-18px_rgba(244,63,94,0.7)]'
+                          : answerReveal !== null
+                            ? 'border-white/70 bg-white/70 text-muted-foreground'
+                            : 'border-white/70 bg-white/82 text-foreground hover:-translate-y-0.5 hover:border-cyan-300/70 hover:bg-cyan-50/80'
+                    }`}
+                  >
+                    <p className="text-sm font-semibold">{option}</p>
+                  </button>
+                ))}
+              </div>
+
+              {answerReveal !== null && (
+                <Button onClick={moveNext} className="rounded-full shadow-[0_14px_28px_-18px_rgba(34,211,238,0.7)]">
+                  {pendingQuestion ? 'Continue' : 'Finish run'}
+                </Button>
+              )}
+            </>
+          ) : (
+            <div className="rounded-2xl border border-border bg-card p-6 text-center">
+              <p className="text-lg font-semibold text-foreground">Quiz complete</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Restart to try a harder run.
+              </p>
+            </div>
+          )}
+        </Card>
 
       <GameResultOverlay
         open={question === null && !loadError}

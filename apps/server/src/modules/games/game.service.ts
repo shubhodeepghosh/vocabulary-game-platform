@@ -89,7 +89,7 @@ export class GameService {
       length: wordLength,
       limit: 10,
     })
-    const excludeWords = await this.getRecentlyUsedWords('wordle')
+    const excludeWords = await this.getRecentlyUsedWords()
     const word = await automationService.chooseWordForGame(
       'wordle',
       difficulty,
@@ -137,7 +137,7 @@ export class GameService {
       maxLength,
       limit: 12,
     })
-    const excludeWords = await this.getRecentlyUsedWords('scramble')
+    const excludeWords = await this.getRecentlyUsedWords()
     const word = await automationService.chooseWordForGame(
       'scramble',
       difficulty,
@@ -386,7 +386,7 @@ export class GameService {
       difficulty,
       limit: 10,
     })
-    const excludeWords = await this.getRecentlyUsedWords('speed')
+    const excludeWords = await this.getRecentlyUsedWords()
     const correct = await automationService.chooseWordForGame(
       'speed',
       difficulty,
@@ -404,7 +404,7 @@ export class GameService {
       difficulty,
       limit: 10,
     })
-    const excludeWords = await this.getRecentlyUsedWords('quiz')
+    const excludeWords = await this.getRecentlyUsedWords()
     const correct = await automationService.chooseWordForGame(
       'quiz',
       difficulty,
@@ -422,14 +422,13 @@ export class GameService {
     return rows as WordRow[]
   }
 
-  private async getRecentlyUsedWords(gameType: GameType, limit = 24) {
+  private async getRecentlyUsedWords(limit = 48) {
     const { rows } = await pool.query(
       `SELECT metadata
        FROM game_results
-       WHERE game_slug = $1
        ORDER BY created_at DESC
        LIMIT $2`,
-      [gameType, limit]
+      [limit]
     )
 
     const words: string[] = []
