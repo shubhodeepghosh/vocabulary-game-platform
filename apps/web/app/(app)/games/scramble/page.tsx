@@ -29,6 +29,7 @@ export default function ScramblePage() {
   const [timeLeft, setTimeLeft] = useState(0)
   const [isBusy, setIsBusy] = useState(false)
   const [shake, setShake] = useState(false)
+  const [correctWord, setCorrectWord] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
   const setGameSession = useGameStore((state) => state.setSession)
   const updateScore = useGameStore((state) => state.updateScore)
@@ -49,6 +50,7 @@ export default function ScramblePage() {
       setAnswer('')
       setFeedback('Round live. Rearrange the letters and beat the clock.')
       setStatus('active')
+      setCorrectWord(null)
       setLoadError(null)
       setGameSession({
         gameType: 'scramble',
@@ -84,13 +86,14 @@ export default function ScramblePage() {
     updateScore(response.score)
     if (response.hint) setHint(response.hint)
     setHintsRemaining(response.hintsRemaining)
+    if (response.correctWord) setCorrectWord(response.correctWord)
     if (response.status === 'won') {
       playSuccessSound()
-      setFeedback(`Correct. ${response.correctWord} locked in for ${response.score} points.`)
+      setFeedback(`Correct. ${response.correctWord ?? 'the word'} locked in for ${response.score} points.`)
       void useAuthStore.getState().refreshStats()
     } else if (response.status === 'lost') {
       playErrorSound()
-      setFeedback(`Time is up. The word was ${response.correctWord}.`)
+      setFeedback(`Time is up. The word was ${response.correctWord ?? 'the word'}.`)
       void useAuthStore.getState().refreshStats()
     } else {
       playTapSound()
@@ -265,8 +268,8 @@ export default function ScramblePage() {
         title={status === 'won' ? 'Word cracked' : 'Time ran out'}
         description={
           status === 'won'
-            ? `You solved ${session.correctWord ?? 'the word'} for ${session.score} points.`
-            : `The answer was ${session.correctWord ?? 'the word'}. Hit restart and go again.`
+            ? `You solved ${correctWord ?? 'the word'} for ${session.score} points.`
+            : `The answer was ${correctWord ?? 'the word'}. Hit restart and go again.`
         }
         primaryAction={{
           label: 'New round',
